@@ -29,7 +29,6 @@ def build_index():
     # Build sklearn index
     index = NearestNeighbors(n_neighbors=5, metric='euclidean')
     index.fit(embeddings)
-
     print("Index built!")
 
     return index, data, embeddings
