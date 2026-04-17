@@ -16,7 +16,6 @@ def load_data():
     with open(DATA_PATH, "r") as f:
         return json.load(f)
 
-
 def build_index():
     data = load_data()
 
