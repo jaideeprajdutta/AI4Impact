@@ -7,7 +7,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.neighbors import NearestNeighbors
 
 # Paths
-DATA_PATH = os.path.join("data", "workers_dataset.json")
+DATA_PATH = os.path.join("data", "large_workers_dataset.json")
 
 # Load model
 model = SentenceTransformer('all-MiniLM-L6-v2')
