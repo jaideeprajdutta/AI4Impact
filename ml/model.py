@@ -12,7 +12,6 @@ DATA_PATH = os.path.join("data", "workers_dataset.json")
 # Load model
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
-
 def load_data():
     with open(DATA_PATH, "r") as f:
         return json.load(f)
