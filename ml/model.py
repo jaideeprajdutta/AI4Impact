@@ -35,7 +35,7 @@ def build_index():
 
 def search(query, index, data, k=5):
     query_vec = model.encode([query])
-
+    
     distances, indices = index.kneighbors(query_vec, n_neighbors=k)
 
     results = []
