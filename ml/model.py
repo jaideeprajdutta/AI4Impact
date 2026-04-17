@@ -63,7 +63,7 @@ def search(query, index, data, k=5):
 
     # 🔥 Normalize query
     query_vec = query_vec / np.linalg.norm(query_vec, axis=1, keepdims=True)
-
+ 
     # Get nearest neighbors
     distances, indices = index.kneighbors(query_vec, n_neighbors=k)
 
