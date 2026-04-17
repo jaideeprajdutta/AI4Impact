@@ -54,6 +54,7 @@ def search(query, index, data, k=5):
 
     return results
 
+
 # -------------------------
 # TEST RUN
 # -------------------------
