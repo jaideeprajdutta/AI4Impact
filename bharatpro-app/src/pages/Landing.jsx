@@ -16,22 +16,12 @@ export default function Landing() {
       <div className="pt-24 pb-32 md:pb-12 relative z-10">
 
         {/* HERO */}
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden rounded-[2rem] mx-4 md:mx-8 mb-12 shadow-2xl border border-outline/10">
+        <section className="relative min-h-screen flex items-center overflow-hidden">
 
-          {/* HERO VIDEO BACKGROUND */}
-          <div className="absolute inset-0 z-0">
-            <video 
-              autoPlay 
-              loop 
-              muted 
-              playsInline 
-              className="w-full h-full object-cover opacity-40 mix-blend-luminosity"
-              poster="/logo.png"
-            >
-              <source src="/intro.mp4" type="video/mp4" />
-            </video>
-            {/* Gradient Overlay for Text Readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/80 to-surface/40"></div>
+          {/* subtle bg */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-[-10%] left-[10%] w-[420px] h-[420px] rounded-full bg-primary/10 blur-[140px]" />
+            <div className="absolute bottom-[-10%] right-[10%] w-[360px] h-[360px] rounded-full bg-secondary/10 blur-[120px]" />
           </div>
 
           <div className="max-w-screen-2xl mx-auto w-full relative z-10 py-20">
