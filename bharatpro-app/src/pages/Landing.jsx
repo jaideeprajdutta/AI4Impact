@@ -16,7 +16,7 @@ export default function Landing() {
       <div className="relative z-10">
 
         {/* HERO */}
-        <section className="relative min-h-[100dvh] flex items-center justify-center pt-20 pb-10 overflow-hidden">
+        <section className="relative min-h-[100dvh] flex flex-col pt-32 pb-12 overflow-hidden">
 
           {/* subtle bg */}
           <div className="absolute inset-0 pointer-events-none">
@@ -24,7 +24,7 @@ export default function Landing() {
             <div className="absolute bottom-[-10%] right-[10%] w-[360px] h-[360px] rounded-full bg-secondary/10 blur-[120px]" />
           </div>
 
-          <div className="max-w-screen-2xl mx-auto w-full relative z-10">
+          <div className="max-w-screen-2xl mx-auto w-full relative z-10 my-auto">
 
             {/* HERO CONTENT */}
             <div className="max-w-5xl mx-auto text-center px-4">
