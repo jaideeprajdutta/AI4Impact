@@ -82,8 +82,8 @@ export default function Dashboard() {
                     </div>
 
                     <div className="flex gap-3">
-                      <button className="btn btn-primary flex-1 py-3 text-sm">Accept Job</button>
-                      <button className="btn btn-secondary flex-1 py-3 text-sm">Decline</button>
+                      <button onClick={() => updateBookingStatus(req.id, 'active')} className="btn btn-primary flex-1 py-3 text-sm">Accept Job</button>
+                      <button onClick={() => updateBookingStatus(req.id, 'rejected')} className="btn btn-secondary flex-1 py-3 text-sm">Decline</button>
                     </div>
                   </div>
                 ))}

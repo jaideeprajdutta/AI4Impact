@@ -13,7 +13,7 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-surface/70 backdrop-blur-2xl border-b border-white/[0.06] hidden md:flex">
-      <div className="flex justify-between items-center px-8 py-3.5 w-full max-w-7xl mx-auto">
+      <div className="flex justify-between items-center px-6 md:px-12 lg:px-20 py-3.5 w-full max-w-[1920px] mx-auto">
         {/* Brand */}
         <Link to="/" className="flex items-center gap-2.5">
           <img src="/logo.png" alt="Bharat Pro" className="h-16 w-auto object-contain" />
@@ -47,9 +47,9 @@ export default function Navbar() {
           <button className="p-2 text-on-surface-variant hover:text-on-surface rounded-lg hover:bg-white/[0.04] transition-colors">
             <span className="material-symbols-outlined text-[20px]">notifications</span>
           </button>
-          <button className="p-2 text-on-surface-variant hover:text-on-surface rounded-lg hover:bg-white/[0.04] transition-colors">
+          <Link to="/profile" className="p-2 text-on-surface-variant hover:text-on-surface rounded-lg hover:bg-white/[0.04] transition-colors">
             <span className="material-symbols-outlined text-[20px]">account_circle</span>
-          </button>
+          </Link>
         </div>
       </div>
     </nav>

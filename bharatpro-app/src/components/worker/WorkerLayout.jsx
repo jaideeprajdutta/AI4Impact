@@ -131,7 +131,7 @@ export default function WorkerLayout({ children }) {
         )}
 
         {/* Page Content */}
-        <main className="flex-1 pb-20 lg:pb-0">
+        <main className="flex-1 pb-20 lg:pb-0 px-5 md:px-10 lg:px-12 max-w-[1600px] mx-auto w-full">
           {children}
         </main>
 

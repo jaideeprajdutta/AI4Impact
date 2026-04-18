@@ -4,7 +4,7 @@ import Layout from '../components/Layout';
 
 export default function OrderTracking() {
   const { id } = useParams();
-  const { bookings } = useApp();
+  const { bookings, updateBookingStatus } = useApp();
   const booking = bookings.find(b => b.id === id);
 
   if (!booking) {
@@ -17,18 +17,23 @@ export default function OrderTracking() {
     );
   }
 
-  const steps = [
-    { label: 'Booking Confirmed', status: 'completed', time: '10:30 AM' },
-    { label: 'Worker Assigned', status: 'active', time: '10:35 AM' },
-    { label: 'Worker on the way', status: 'pending', time: 'Est. 11:00 AM' },
-    { label: 'Service Started', status: 'pending', time: '-' },
-  ];
+  const getStatusInfo = (status) => {
+    switch (status) {
+      case 'completed': return { title: 'Service Completed', desc: 'The professional has marked this job as done.', color: 'text-tertiary', badge: 'bg-tertiary/10 text-tertiary border-tertiary/20' };
+      case 'active': return { title: 'Worker is on the way', desc: 'Arriving in approximately 15 minutes.', color: 'text-secondary', badge: 'badge-accent' };
+      case 'rejected': return { title: 'Booking Declined', desc: 'The professional is currently unavailable.', color: 'text-error', badge: 'bg-error/10 text-error border-error/20' };
+      case 'cancelled': return { title: 'Booking Cancelled', desc: 'You have cancelled this booking.', color: 'text-error', badge: 'bg-error/10 text-error border-error/20' };
+      default: return { title: 'Waiting for Confirmation', desc: 'Waiting for the professional to accept your request.', color: 'text-on-surface', badge: 'bg-white/10 text-on-surface' };
+    }
+  };
+
+  const statusInfo = getStatusInfo(booking.status);
 
   return (
     <Layout>
-      <div className="section pt-32 pb-32 max-w-4xl mx-auto">
+      <div className="section pt-28 md:pt-32 pb-32 max-w-4xl mx-auto animate-fade-in">
         <div className="flex items-center gap-3 mb-8">
-          <Link to="/" className="p-2 rounded-xl hover:bg-white/10 text-on-surface-variant transition-colors">
+          <Link to="/profile" className="p-2 rounded-xl hover:bg-white/10 text-on-surface-variant transition-colors">
             <span className="material-symbols-outlined">arrow_back</span>
           </Link>
           <h1 className="text-2xl font-headline font-bold">Order Tracking</h1>
@@ -37,21 +42,25 @@ export default function OrderTracking() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Main Status */}
           <div className="md:col-span-2 space-y-6">
-            <div className="card p-6 md:p-8 relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-8 opacity-10">
-                <span className="material-symbols-outlined text-8xl">local_shipping</span>
+            <div className="card p-6 md:p-8 relative overflow-hidden shadow-premium">
+              <div className="absolute top-0 right-0 p-8 opacity-5">
+                <span className="material-symbols-outlined text-9xl">
+                  {booking.status === 'completed' ? 'check_circle' : booking.status === 'active' ? 'local_shipping' : booking.status === 'pending' ? 'hourglass_empty' : 'cancel'}
+                </span>
               </div>
               
               <div className="relative z-10">
-                <span className="badge badge-accent mb-4">In Progress</span>
-                <h2 className="text-3xl font-headline font-extrabold text-on-surface mb-2">Worker is on the way</h2>
-                <p className="text-on-surface-variant mb-6">Arriving in approximately 15 minutes.</p>
+                <span className={`badge mb-4 ${statusInfo.badge}`}>{booking.status.toUpperCase()}</span>
+                <h2 className="text-3xl font-headline font-extrabold text-on-surface mb-2">{statusInfo.title}</h2>
+                <p className="text-on-surface-variant mb-6">{statusInfo.desc}</p>
                 
-                <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/05">
-                  <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center font-bold text-white shadow-glow">RK</div>
+                <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/05 backdrop-blur-md">
+                  <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center font-bold text-white shadow-glow">
+                    {booking.workerName?.charAt(0) || 'P'}
+                  </div>
                   <div>
-                    <p className="text-sm font-bold text-on-surface">Rajesh Kumar</p>
-                    <p className="text-xs text-on-surface-variant">Professional Plumber • 4.9★</p>
+                    <p className="text-sm font-bold text-on-surface">{booking.workerName}</p>
+                    <p className="text-xs text-on-surface-variant">Professional</p>
                   </div>
                   <div className="ml-auto flex gap-2">
                     <button className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-on-surface transition-all">
@@ -69,27 +78,50 @@ export default function OrderTracking() {
             <div className="card p-6 md:p-8">
               <h3 className="text-lg font-headline font-bold text-on-surface mb-6">Timeline</h3>
               <div className="space-y-8 relative">
-                {/* Connector line */}
                 <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-white/05" />
 
-                {steps.map((step, i) => (
-                  <div key={i} className="flex gap-6 relative">
-                    <div className={`w-6 h-6 rounded-full border-4 border-surface-container shrink-0 z-10 ${
-                      step.status === 'completed' ? 'bg-tertiary' : 
-                      step.status === 'active' ? 'bg-secondary animate-pulse' : 
-                      'bg-surface-container-high'
-                    }`} />
-                    <div className="flex-1">
-                      <div className="flex justify-between items-start">
-                        <p className={`text-sm font-bold ${step.status === 'pending' ? 'text-on-surface-variant' : 'text-on-surface'}`}>
-                          {step.label}
-                        </p>
-                        <span className="text-xs text-outline">{step.time}</span>
-                      </div>
-                      {step.status === 'active' && <p className="text-xs text-on-surface-variant mt-1">Worker has started moving towards your location.</p>}
-                    </div>
+                <div className="flex gap-6 relative">
+                  <div className="w-6 h-6 rounded-full border-4 border-surface-container bg-tertiary shrink-0 z-10" />
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-on-surface">Booking Requested</p>
+                    <span className="text-xs text-outline">Done</span>
                   </div>
-                ))}
+                </div>
+
+                <div className="flex gap-6 relative">
+                  <div className={`w-6 h-6 rounded-full border-4 border-surface-container shrink-0 z-10 ${
+                    ['active', 'completed'].includes(booking.status) ? 'bg-tertiary' : 
+                    booking.status === 'pending' ? 'bg-secondary animate-pulse' : 'bg-error'
+                  }`} />
+                  <div className="flex-1">
+                    <p className={`text-sm font-bold ${['active', 'completed'].includes(booking.status) ? 'text-on-surface' : 'text-on-surface-variant'}`}>
+                      Worker Confirmed
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-6 relative">
+                  <div className={`w-6 h-6 rounded-full border-4 border-surface-container shrink-0 z-10 ${
+                    booking.status === 'completed' ? 'bg-tertiary' : 
+                    booking.status === 'active' ? 'bg-secondary animate-pulse' : 'bg-surface-container-high'
+                  }`} />
+                  <div className="flex-1">
+                    <p className={`text-sm font-bold ${booking.status === 'completed' || booking.status === 'active' ? 'text-on-surface' : 'text-on-surface-variant'}`}>
+                      Service in Progress
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-6 relative">
+                  <div className={`w-6 h-6 rounded-full border-4 border-surface-container shrink-0 z-10 ${
+                    booking.status === 'completed' ? 'bg-tertiary shadow-[0_0_10px_rgba(52,211,153,0.5)]' : 'bg-surface-container-high'
+                  }`} />
+                  <div className="flex-1">
+                    <p className={`text-sm font-bold ${booking.status === 'completed' ? 'text-on-surface' : 'text-on-surface-variant'}`}>
+                      Completed
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -120,16 +152,26 @@ export default function OrderTracking() {
               </div>
             </div>
 
-            <div className="card p-6 bg-secondary/5 border-secondary/10">
-              <div className="flex items-start gap-3">
-                <span className="material-symbols-outlined text-secondary">info</span>
-                <p className="text-xs text-on-surface-variant leading-relaxed">
-                  Final price may vary based on actual work and materials used.
-                </p>
+            {booking.status === 'completed' && (
+              <div className="card p-6 text-center">
+                 <h3 className="text-sm font-bold text-on-surface mb-3">Rate your experience</h3>
+                 <div className="flex justify-center gap-2 mb-4">
+                    {[1,2,3,4,5].map(star => (
+                      <span key={star} className="material-symbols-outlined text-3xl text-surface-variant hover:text-secondary cursor-pointer transition-colors" style={{fontVariationSettings:"'FILL' 1"}}>star</span>
+                    ))}
+                 </div>
+                 <button className="btn btn-secondary w-full text-sm">Leave a Review</button>
               </div>
-            </div>
+            )}
 
-            <button className="w-full btn btn-secondary text-sm py-3.5">Cancel Booking</button>
+            {(booking.status === 'pending' || booking.status === 'active') && (
+              <button 
+                onClick={() => updateBookingStatus(booking.id, 'cancelled')}
+                className="w-full btn btn-secondary text-sm py-3.5 border-error/20 text-error hover:bg-error/10"
+              >
+                Cancel Booking
+              </button>
+            )}
           </div>
         </div>
       </div>

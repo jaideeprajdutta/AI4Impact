@@ -9,6 +9,7 @@ const VoiceAssistant = lazy(() => import('./pages/VoiceAssistant'));
 const MaterialsStore = lazy(() => import('./pages/MaterialsStore'));
 const TrustReviews = lazy(() => import('./pages/TrustReviews'));
 const OrderTracking = lazy(() => import('./pages/OrderTracking'));
+const CustomerProfile = lazy(() => import('./pages/CustomerProfile'));
 
 /* Worker Portal pages */
 const WorkerRegister = lazy(() => import('./pages/worker/Register'));
@@ -55,6 +56,8 @@ export default function App() {
           <Route path="/materials" element={<MaterialsStore />} />
           <Route path="/trust" element={<TrustReviews />} />
           <Route path="/order-tracking/:id" element={<OrderTracking />} />
+
+          <Route path="/profile" element={<CustomerProfile />} />
 
           {/* Worker Portal */}
           <Route path="/worker/register" element={<WorkerRegister />} />

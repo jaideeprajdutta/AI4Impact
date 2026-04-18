@@ -1,16 +1,8 @@
 import { useState } from 'react';
 import WorkerLayout from '../../components/worker/WorkerLayout';
+import { useApp } from '../../context/AppContext';
 
 const periods = ['Today', 'This Week', 'This Month', 'All Time'];
-
-const transactions = [
-  { id: 1, title: 'Kitchen Sink Repair', client: 'Amit Patel', amount: '+₹800', date: 'Today, 11:30 AM', status: 'completed' },
-  { id: 2, title: 'Water Heater Install', client: 'Raj Sharma', amount: '+₹3,500', date: 'Today, 2:00 PM', status: 'pending' },
-  { id: 3, title: 'Bathroom Plumbing', client: 'Vikram Desai', amount: '+₹12,000', date: 'Yesterday', status: 'completed' },
-  { id: 4, title: 'Pipe Leakage Fix', client: 'Nisha Gupta', amount: '+₹1,200', date: '2 days ago', status: 'completed' },
-  { id: 5, title: 'Washing Machine Setup', client: 'Arjun Reddy', amount: '+₹900', date: '3 days ago', status: 'completed' },
-  { id: 6, title: 'Platform Fee', client: 'Bharat Pro', amount: '-₹1,840', date: '3 days ago', status: 'fee' },
-];
 
 const weekData = [
   { day: 'Mon', value: 2400 },
@@ -23,12 +15,31 @@ const weekData = [
 ];
 
 export default function Earnings() {
+  const { bookings, getWorkerMetrics, currentWorkerId } = useApp();
   const [period, setPeriod] = useState('This Week');
+  const [withdrawn, setWithdrawn] = useState(false);
   const maxVal = Math.max(...weekData.map(d => d.value));
+
+  const metrics = getWorkerMetrics(currentWorkerId);
+  
+  // Real transactions from bookings
+  const myBookings = bookings.filter(b => b.workerId === currentWorkerId && (b.status === 'completed' || b.status === 'active'));
+  
+  // Fake some transactions based on bookings
+  const transactions = myBookings.map(b => ({
+    id: b.id,
+    title: b.title,
+    client: b.clientName,
+    amount: b.status === 'completed' ? `+₹${b.amount}` : `+₹${b.amount} (Est)`,
+    date: b.date || 'Today',
+    status: b.status
+  }));
+
+  const pendingPayout = myBookings.filter(b => b.status === 'active').reduce((sum, b) => sum + b.amount, 0);
 
   return (
     <WorkerLayout>
-      <div className="p-4 md:p-8 max-w-5xl mx-auto flex flex-col gap-6">
+      <div className="p-4 md:p-8 max-w-5xl mx-auto flex flex-col gap-6 animate-fade-in">
         <div>
           <h1 className="text-2xl font-headline font-bold text-on-surface">Earnings</h1>
           <p className="text-sm text-on-surface-variant mt-0.5">Track your income and payouts.</p>
@@ -43,28 +54,28 @@ export default function Earnings() {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="card p-5 relative overflow-hidden">
+          <div className="card p-5 relative overflow-hidden shadow-glow">
             <div className="absolute top-3 right-3 opacity-[0.06]">
               <span className="material-symbols-outlined text-4xl">account_balance_wallet</span>
             </div>
             <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Total Earned</p>
-            <p className="text-3xl font-headline font-bold text-on-surface">₹1,24,500</p>
+            <p className="text-3xl font-headline font-bold text-on-surface">₹{metrics.totalEarnings.toLocaleString()}</p>
             <div className="mt-3 flex items-center gap-1.5">
               <span className="badge badge-success text-xs">
-                <span className="material-symbols-outlined text-xs">trending_up</span> +18.5%
+                <span className="material-symbols-outlined text-xs">trending_up</span> +12%
               </span>
               <span className="text-xs text-on-surface-variant">vs last month</span>
             </div>
           </div>
           <div className="card p-5">
-            <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">This Week</p>
-            <p className="text-3xl font-headline font-bold text-on-surface">₹19,100</p>
-            <p className="text-xs text-on-surface-variant mt-3">7 jobs completed</p>
+            <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Completed Jobs</p>
+            <p className="text-3xl font-headline font-bold text-on-surface">{metrics.completedJobs}</p>
+            <p className="text-xs text-on-surface-variant mt-3">All time</p>
           </div>
-          <div className="card p-5">
+          <div className="card p-5 border-secondary/20 bg-secondary/5">
             <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Pending Payout</p>
-            <p className="text-3xl font-headline font-bold text-secondary">₹4,300</p>
-            <p className="text-xs text-on-surface-variant mt-3">Next payout: Tomorrow</p>
+            <p className="text-3xl font-headline font-bold text-secondary">₹{withdrawn ? 0 : pendingPayout.toLocaleString()}</p>
+            <p className="text-xs text-on-surface-variant mt-3">{withdrawn ? 'Transfer initiated' : 'Next payout: Tomorrow'}</p>
           </div>
         </div>
 
@@ -75,7 +86,7 @@ export default function Earnings() {
             {weekData.map(({ day, value }) => (
               <div key={day} className="flex-1 flex flex-col items-center gap-2">
                 <div className="w-full max-w-[40px] rounded-t-lg bg-secondary/20 hover:bg-secondary/40 transition-colors relative group" style={{height: `${(value / maxVal) * 100}%`}}>
-                  <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-semibold text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                  <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-semibold text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 bg-surface px-2 py-1 rounded shadow-premium border border-white/10">
                     ₹{value.toLocaleString()}
                   </div>
                 </div>
@@ -88,29 +99,35 @@ export default function Earnings() {
         {/* Transaction List */}
         <div>
           <h2 className="text-base font-headline font-bold text-on-surface mb-4">Recent Transactions</h2>
-          <div className="card overflow-hidden divide-y divide-white/[0.04]">
-            {transactions.map(tx => (
-              <div key={tx.id} className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                    tx.status === 'fee' ? 'bg-error-container/30' : 'bg-tertiary/10'
-                  }`}>
-                    <span className={`material-symbols-outlined text-base ${tx.status === 'fee' ? 'text-error' : 'text-tertiary'}`}>
-                      {tx.status === 'fee' ? 'receipt_long' : 'check_circle'}
-                    </span>
+          {transactions.length === 0 ? (
+            <div className="card p-8 text-center">
+              <p className="text-on-surface-variant">No recent earnings to display.</p>
+            </div>
+          ) : (
+            <div className="card overflow-hidden divide-y divide-white/[0.04]">
+              {transactions.map(tx => (
+                <div key={tx.id} className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                      tx.status === 'fee' ? 'bg-error-container/30' : 'bg-tertiary/10'
+                    }`}>
+                      <span className={`material-symbols-outlined text-base ${tx.status === 'fee' ? 'text-error' : 'text-tertiary'}`}>
+                        {tx.status === 'fee' ? 'receipt_long' : 'check_circle'}
+                      </span>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-on-surface truncate">{tx.title}</p>
+                      <p className="text-xs text-on-surface-variant">{tx.client} • {tx.date}</p>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-on-surface truncate">{tx.title}</p>
-                    <p className="text-xs text-on-surface-variant">{tx.client} • {tx.date}</p>
+                  <div className="text-right shrink-0 ml-4">
+                    <p className={`text-sm font-headline font-bold ${tx.status === 'fee' ? 'text-error' : 'text-tertiary'}`}>{tx.amount}</p>
+                    {tx.status === 'active' && <p className="text-xs text-secondary">Pending</p>}
                   </div>
                 </div>
-                <div className="text-right shrink-0 ml-4">
-                  <p className={`text-sm font-headline font-bold ${tx.status === 'fee' ? 'text-error' : 'text-tertiary'}`}>{tx.amount}</p>
-                  {tx.status === 'pending' && <p className="text-xs text-secondary">Pending</p>}
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Withdraw */}
@@ -119,9 +136,13 @@ export default function Earnings() {
             <p className="text-sm font-semibold text-on-surface">Ready to withdraw?</p>
             <p className="text-xs text-on-surface-variant mt-0.5">Instant transfer to your bank account.</p>
           </div>
-          <button className="btn btn-primary">
-            <span className="material-symbols-outlined text-base">account_balance</span>
-            Withdraw ₹4,300
+          <button 
+            className="btn btn-primary"
+            onClick={() => setWithdrawn(true)}
+            disabled={withdrawn || pendingPayout === 0}
+          >
+            <span className="material-symbols-outlined text-base">{withdrawn ? 'check' : 'account_balance'}</span>
+            {withdrawn ? 'Transferred' : `Withdraw ₹${pendingPayout.toLocaleString()}`}
           </button>
         </div>
       </div>

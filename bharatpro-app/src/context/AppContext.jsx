@@ -55,9 +55,16 @@ export const workersData = [
 export function AppProvider({ children }) {
   const [workers, setWorkers] = useState(workersData);
   const [bookings, setBookings] = useState([
-    { id: 'BP-1001', workerId: 1, status: 'completed', date: 'Yesterday', title: 'Kitchen Sink Leak', amount: 800 },
-    { id: 'BP-1002', workerId: 1, status: 'active', date: 'Started 2h ago', title: 'Water Heater Install', amount: 3500 },
+    { id: 'BP-1001', workerId: 1, workerName: 'Rajesh Kumar', status: 'completed', date: 'Yesterday', title: 'Kitchen Sink Leak', amount: 800, clientName: 'You' },
+    { id: 'BP-1002', workerId: 1, workerName: 'Rajesh Kumar', status: 'active', date: 'Started 2h ago', title: 'Water Heater Install', amount: 3500, clientName: 'You' },
   ]);
+  const [savedWorkers, setSavedWorkers] = useState([]);
+  const [cart, setCart] = useState([]);
+  const [isDarkMode, setIsDarkMode] = useState(true);
+
+  // Mock Users
+  const currentUser = { id: 999, name: 'You', role: 'customer' };
+  const currentWorkerId = 1; // Simulated logged-in worker
 
   const addBooking = (booking) => {
     const newBooking = {
@@ -73,6 +80,17 @@ export function AppProvider({ children }) {
     setBookings(prev => prev.map(b => b.id === id ? { ...b, status } : b));
   };
 
+  const toggleSavedWorker = (workerId) => {
+    setSavedWorkers(prev => prev.includes(workerId) ? prev.filter(id => id !== workerId) : [...prev, workerId]);
+  };
+
+  const updateWorkerAvailability = (workerId, available) => {
+    setWorkers(prev => prev.map(w => w.id === workerId ? { ...w, available } : w));
+  };
+
+  const addToCart = (item) => setCart(prev => [...prev, item]);
+  const clearCart = () => setCart([]);
+
   const getWorkerMetrics = (workerId) => {
     const workerBookings = bookings.filter(b => b.workerId === workerId);
     return {
@@ -80,7 +98,7 @@ export function AppProvider({ children }) {
       pendingJobs: workerBookings.filter(b => b.status === 'pending').length,
       activeJobs: workerBookings.filter(b => b.status === 'active').length,
       completedJobs: workerBookings.filter(b => b.status === 'completed').length,
-      requests: workerBookings.filter(b => b.status === 'request').length,
+      requests: workerBookings.filter(b => b.status === 'pending').length,
     };
   };
 
@@ -88,9 +106,19 @@ export function AppProvider({ children }) {
     <AppContext.Provider value={{ 
       workers, 
       bookings, 
+      savedWorkers,
+      cart,
+      currentUser,
+      currentWorkerId,
+      isDarkMode,
+      setIsDarkMode,
       addBooking, 
       updateBookingStatus,
-      getWorkerMetrics 
+      getWorkerMetrics,
+      toggleSavedWorker,
+      updateWorkerAvailability,
+      addToCart,
+      clearCart
     }}>
       {children}
     </AppContext.Provider>
