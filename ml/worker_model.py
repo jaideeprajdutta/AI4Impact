@@ -53,7 +53,7 @@ def detect_intent(user_text):
 
 if __name__ == "__main__":
     test_sentences = [
-        "I'm not in thr mood to wake up today",
+        "I am free now  ",
         "I finished the job",
         "I can't take work today",
         "show my work",
