@@ -67,8 +67,10 @@ export default function Landing() {
                   <div className="w-px h-10 bg-white/10 mx-4 hidden md:block" />
 
                   <button 
-                    type="submit"
-                    className="h-12 w-12 rounded-2xl bg-secondary text-white flex items-center justify-center hover:shadow-glow hover:scale-105 active:scale-95 transition-all duration-300 shadow-premium"
+                    type="button"
+                    onClick={() => navigate('/voice')}
+                    className="h-12 w-12 rounded-2xl bg-secondary/10 text-secondary border border-secondary/20 flex items-center justify-center hover:bg-secondary hover:text-white hover:shadow-glow hover:scale-105 active:scale-95 transition-all duration-300 shadow-premium"
+                    title="AI Voice Assistant"
                   >
                     <span className="material-symbols-outlined text-[22px] font-bold">
                       mic
@@ -98,14 +100,6 @@ export default function Landing() {
                   className="px-8 py-4 rounded-xl bg-secondary text-white font-semibold hover:opacity-90 transition"
                 >
                   Explore Services
-                </Link>
-
-                <Link
-                  to="/voice"
-                  className="px-8 py-4 rounded-xl border border-white/10 text-on-surface hover:border-secondary/40 transition flex items-center justify-center gap-2"
-                >
-                  <span className="material-symbols-outlined">mic</span>
-                  Voice Search
                 </Link>
               </div>
 

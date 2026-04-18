@@ -5,7 +5,6 @@ const navLinks = [
   { path: '/search', label: 'Services' },
   { path: '/materials', label: 'Materials' },
   { path: '/trust', label: 'Trust' },
-  { path: '/voice', label: 'AI Assistant' },
 ];
 
 export default function Navbar() {
