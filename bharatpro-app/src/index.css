@@ -145,6 +145,12 @@ h4,
   letter-spacing: -0.02em;
 }
 
+.mrs-sheppards-regular {
+  font-family: "Mrs Sheppards", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+
 /* ── Glassmorphism ────────────────────────────────────────── */
 .glass-panel {
   background: var(--glass-bg);
