@@ -38,7 +38,7 @@ export default function Landing() {
               {/* heading */}
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-on-surface leading-[1.05] mb-5 animate-slide-up delay-100">
                 Hire Trusted Workers <br />
-                <span className="text-secondary mrs-sheppards-regular font-normal tracking-normal pt-2 inline-block">Across India</span>
+                <span className="text-secondary mrs-sheppards-regular font-normal tracking-normal pt-2 inline-block text-5xl md:text-7xl lg:text-[5.5rem]">Across India</span>
               </h1>
 
               <p className="text-base md:text-lg text-on-surface-variant max-w-2xl mx-auto leading-relaxed mb-8 animate-slide-up delay-200">
