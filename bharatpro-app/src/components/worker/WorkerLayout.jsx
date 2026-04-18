@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
+import { useTheme } from '../../context/ThemeContext';
 
 const sidebarLinks = [
   { path: '/worker/dashboard', icon: 'grid_view', label: 'Dashboard' },
@@ -12,18 +13,19 @@ const sidebarLinks = [
 export default function WorkerLayout({ children }) {
   const { pathname } = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { isDark, toggleTheme } = useTheme();
 
   return (
-    <div className="min-h-screen bg-surface text-on-surface flex">
+    <div className="min-h-screen bg-surface text-on-surface flex transition-colors duration-300">
       {/* Sidebar — Desktop */}
-      <aside className="hidden lg:flex flex-col w-[260px] border-r border-white/[0.06] bg-surface-container-lowest shrink-0 sticky top-0 h-screen">
+      <aside className="hidden lg:flex flex-col w-[260px] border-r border-outline/10 bg-surface-container-lowest shrink-0 sticky top-0 h-screen transition-colors duration-300">
         {/* Brand */}
-        <Link to="/" className="flex items-center gap-2.5 px-6 py-5 border-b border-white/[0.06]">
+        <Link to="/" className="flex items-center gap-2.5 px-6 py-5 border-b border-outline/10">
           <img src="/logo.png" alt="Bharat Pro" className="h-14 w-auto object-contain" />
         </Link>
 
         {/* Worker Info */}
-        <div className="px-5 py-4 border-b border-white/[0.06]">
+        <div className="px-5 py-4 border-b border-outline/10">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-secondary to-secondary-container flex items-center justify-center text-white font-bold text-sm">
               RK
@@ -49,7 +51,7 @@ export default function WorkerLayout({ children }) {
                 className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                   active
                     ? 'bg-secondary/10 text-secondary'
-                    : 'text-on-surface-variant hover:text-on-surface hover:bg-white/[0.04]'
+                    : 'text-on-surface-variant hover:text-on-surface hover:bg-on-surface/5'
                 }`}
               >
                 <span className="material-symbols-outlined text-[20px]" style={active ? {fontVariationSettings:"'FILL' 1"} : {}}>
@@ -62,10 +64,19 @@ export default function WorkerLayout({ children }) {
         </nav>
 
         {/* Bottom */}
-        <div className="px-3 py-4 border-t border-white/[0.06]">
+        <div className="px-3 py-4 border-t border-outline/10 flex flex-col gap-1">
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-on-surface/5 transition-all w-full text-left"
+          >
+            <span className="material-symbols-outlined text-[20px]">
+              {isDark ? 'light_mode' : 'dark_mode'}
+            </span>
+            {isDark ? 'Light Mode' : 'Dark Mode'}
+          </button>
           <Link
             to="/"
-            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-white/[0.04] transition-all"
+            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-on-surface/5 transition-all"
           >
             <span className="material-symbols-outlined text-[20px]">arrow_back</span>
             Back to Marketplace
@@ -76,17 +87,24 @@ export default function WorkerLayout({ children }) {
       {/* Mobile Header + Overlay */}
       <div className="flex flex-col flex-1 min-w-0">
         {/* Mobile Top Bar */}
-        <header className="lg:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-3 bg-surface/80 backdrop-blur-2xl border-b border-white/[0.06]">
-          <button onClick={() => setSidebarOpen(true)} className="p-2 -ml-2 rounded-lg hover:bg-white/[0.04]">
+        <header className="lg:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-3 bg-surface/80 backdrop-blur-2xl border-b border-outline/10 transition-colors duration-300">
+          <button onClick={() => setSidebarOpen(true)} className="p-2 -ml-2 rounded-lg hover:bg-on-surface/5 transition-colors">
             <span className="material-symbols-outlined text-on-surface">menu</span>
           </button>
           <Link to="/" className="flex items-center gap-2">
             <img src="/logo.png" alt="Bharat Pro" className="h-11 w-auto object-contain" />
-            <span className="font-extrabold text-on-surface font-headline text-xs ml-1 whitespace-nowrap">Worker Portal</span>
+            <span className="font-extrabold text-on-surface font-headline text-xs ml-1 whitespace-nowrap hidden sm:block">Worker Portal</span>
           </Link>
-          <button className="p-2 -mr-2 rounded-lg hover:bg-white/[0.04]">
-            <span className="material-symbols-outlined text-on-surface-variant text-[20px]">notifications</span>
-          </button>
+          <div className="flex items-center gap-1 -mr-2">
+            <button onClick={toggleTheme} className="p-2 rounded-lg hover:bg-on-surface/5 transition-colors">
+              <span className="material-symbols-outlined text-on-surface-variant text-[20px]">
+                {isDark ? 'light_mode' : 'dark_mode'}
+              </span>
+            </button>
+            <button className="p-2 rounded-lg hover:bg-on-surface/5 transition-colors">
+              <span className="material-symbols-outlined text-on-surface-variant text-[20px]">notifications</span>
+            </button>
+          </div>
         </header>
 
         {/* Mobile Sidebar Overlay */}

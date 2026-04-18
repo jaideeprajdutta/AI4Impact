@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { lazy, Suspense, useState, useEffect } from 'react';
 import SplashScreen from './components/SplashScreen';
+import { ThemeProvider } from './context/ThemeContext';
 
 /* Customer-facing pages */
 const Landing = lazy(() => import('./pages/Landing'));
@@ -45,29 +46,31 @@ export default function App() {
   };
 
   return (
-    <BrowserRouter>
-      {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
-      <Suspense fallback={<LoadingFallback />}>
-        <Routes>
-          {/* Customer-facing */}
-          <Route path="/" element={<Landing />} />
-          <Route path="/search" element={<SearchResults />} />
-          <Route path="/voice" element={<VoiceAssistant />} />
-          <Route path="/materials" element={<MaterialsStore />} />
-          <Route path="/trust" element={<TrustReviews />} />
-          <Route path="/order-tracking/:id" element={<OrderTracking />} />
+    <ThemeProvider>
+      <BrowserRouter>
+        {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            {/* Customer-facing */}
+            <Route path="/" element={<Landing />} />
+            <Route path="/search" element={<SearchResults />} />
+            <Route path="/voice" element={<VoiceAssistant />} />
+            <Route path="/materials" element={<MaterialsStore />} />
+            <Route path="/trust" element={<TrustReviews />} />
+            <Route path="/order-tracking/:id" element={<OrderTracking />} />
 
-          <Route path="/profile" element={<CustomerProfile />} />
+            <Route path="/profile" element={<CustomerProfile />} />
 
-          {/* Worker Portal */}
-          <Route path="/worker/register" element={<WorkerRegister />} />
-          <Route path="/worker/dashboard" element={<WorkerDashboard />} />
-          <Route path="/worker/jobs" element={<WorkerJobs />} />
-          <Route path="/worker/earnings" element={<WorkerEarnings />} />
-          <Route path="/worker/voice" element={<WorkerVoice />} />
-          <Route path="/worker/profile" element={<WorkerProfile />} />
-        </Routes>
-      </Suspense>
-    </BrowserRouter>
+            {/* Worker Portal */}
+            <Route path="/worker/register" element={<WorkerRegister />} />
+            <Route path="/worker/dashboard" element={<WorkerDashboard />} />
+            <Route path="/worker/jobs" element={<WorkerJobs />} />
+            <Route path="/worker/earnings" element={<WorkerEarnings />} />
+            <Route path="/worker/voice" element={<WorkerVoice />} />
+            <Route path="/worker/profile" element={<WorkerProfile />} />
+          </Routes>
+        </Suspense>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
