@@ -1,24 +1,41 @@
-import { useParams, Link } from 'react-router-dom';
-import { useApp } from '../context/AppContext';
+import { useParams, Link, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
+import { getJob } from '../api';
 
 export default function OrderTracking() {
   const { id } = useParams();
-  const { bookings, updateBookingStatus } = useApp();
-  const booking = bookings.find(b => b.id === id);
+  const location = useLocation();
+  const state = location.state || {};
 
-  if (!booking) {
-    return (
-      <Layout>
-        <div className="section min-h-[60vh] flex items-center justify-center">
-          <p className="text-on-surface-variant">Booking not found.</p>
-        </div>
-      </Layout>
-    );
-  }
+  const [booking, setBooking] = useState({
+    id: id || 'NEW',
+    status: 'pending',
+    workerName: state.workerName || 'Assigned Pro',
+    workerId: state.workerId || null,
+    workerRole: state.workerRole || 'Professional',
+    amount: state.price || null,
+  });
 
-  const getStatusInfo = (status) => {
-    switch (status) {
+  useEffect(() => {
+    if (id && id !== 'NEW') {
+      getJob(id).then(data => {
+        if (!data.error) {
+          setBooking(prev => ({
+            ...prev,
+            status: data.status,
+            amount: data.price,
+            workerName: data.worker ? data.worker.name : prev.workerName,
+            workerId: data.worker ? data.worker.id : prev.workerId,
+            workerRole: data.worker ? data.worker.skill : prev.workerRole,
+          }));
+        }
+      }).catch(console.error);
+    }
+  }, [id]);
+
+  const getStatusInfo = (s) => {
+    switch (s) {
       case 'completed': return { title: 'Service Completed', desc: 'The professional has marked this job as done.', color: 'text-tertiary', badge: 'bg-tertiary/10 text-tertiary border-tertiary/20' };
       case 'active': return { title: 'Worker is on the way', desc: 'Arriving in approximately 15 minutes.', color: 'text-secondary', badge: 'badge-accent' };
       case 'rejected': return { title: 'Booking Declined', desc: 'The professional is currently unavailable.', color: 'text-error', badge: 'bg-error/10 text-error border-error/20' };
@@ -48,19 +65,22 @@ export default function OrderTracking() {
                   {booking.status === 'completed' ? 'check_circle' : booking.status === 'active' ? 'local_shipping' : booking.status === 'pending' ? 'hourglass_empty' : 'cancel'}
                 </span>
               </div>
-              
+
               <div className="relative z-10">
                 <span className={`badge mb-4 ${statusInfo.badge}`}>{booking.status.toUpperCase()}</span>
                 <h2 className="text-3xl font-headline font-extrabold text-on-surface mb-2">{statusInfo.title}</h2>
                 <p className="text-on-surface-variant mb-6">{statusInfo.desc}</p>
-                
+
                 <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/05 backdrop-blur-md">
                   <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center font-bold text-white shadow-glow">
                     {booking.workerName?.charAt(0) || 'P'}
                   </div>
                   <div>
                     <p className="text-sm font-bold text-on-surface">{booking.workerName}</p>
-                    <p className="text-xs text-on-surface-variant">Professional</p>
+                    <p className="text-xs text-on-surface-variant flex items-center gap-1">
+                      {booking.workerRole}
+                      {booking.workerId && <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded ml-1">ID: {booking.workerId}</span>}
+                    </p>
                   </div>
                   <div className="ml-auto flex gap-2">
                     <button className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-on-surface transition-all">
@@ -90,7 +110,7 @@ export default function OrderTracking() {
 
                 <div className="flex gap-6 relative">
                   <div className={`w-6 h-6 rounded-full border-4 border-surface-container shrink-0 z-10 ${
-                    ['active', 'completed'].includes(booking.status) ? 'bg-tertiary' : 
+                    ['active', 'completed'].includes(booking.status) ? 'bg-tertiary' :
                     booking.status === 'pending' ? 'bg-secondary animate-pulse' : 'bg-error'
                   }`} />
                   <div className="flex-1">
@@ -102,7 +122,7 @@ export default function OrderTracking() {
 
                 <div className="flex gap-6 relative">
                   <div className={`w-6 h-6 rounded-full border-4 border-surface-container shrink-0 z-10 ${
-                    booking.status === 'completed' ? 'bg-tertiary' : 
+                    booking.status === 'completed' ? 'bg-tertiary' :
                     booking.status === 'active' ? 'bg-secondary animate-pulse' : 'bg-surface-container-high'
                   }`} />
                   <div className="flex-1">
@@ -111,7 +131,7 @@ export default function OrderTracking() {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="flex gap-6 relative">
                   <div className={`w-6 h-6 rounded-full border-4 border-surface-container shrink-0 z-10 ${
                     booking.status === 'completed' ? 'bg-tertiary shadow-[0_0_10px_rgba(52,211,153,0.5)]' : 'bg-surface-container-high'
@@ -137,36 +157,30 @@ export default function OrderTracking() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-on-surface-variant">Date</span>
-                  <span className="text-on-surface font-medium">{booking.slot?.date || 'Today'}</span>
+                  <span className="text-on-surface font-medium">Today</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-on-surface-variant">Time</span>
-                  <span className="text-on-surface font-medium">{booking.slot?.time || 'Pending'}</span>
-                </div>
-              </div>
-              <div className="mt-6 pt-6 border-t border-white/05">
-                <div className="flex justify-between text-base font-bold">
-                  <span className="text-on-surface">Total Est.</span>
-                  <span className="text-secondary">₹{booking.amount}</span>
+                  <span className="text-on-surface font-medium">ASAP</span>
                 </div>
               </div>
             </div>
 
             {booking.status === 'completed' && (
               <div className="card p-6 text-center">
-                 <h3 className="text-sm font-bold text-on-surface mb-3">Rate your experience</h3>
-                 <div className="flex justify-center gap-2 mb-4">
-                    {[1,2,3,4,5].map(star => (
-                      <span key={star} className="material-symbols-outlined text-3xl text-surface-variant hover:text-secondary cursor-pointer transition-colors" style={{fontVariationSettings:"'FILL' 1"}}>star</span>
-                    ))}
-                 </div>
-                 <button className="btn btn-secondary w-full text-sm">Leave a Review</button>
+                <h3 className="text-sm font-bold text-on-surface mb-3">Rate your experience</h3>
+                <div className="flex justify-center gap-2 mb-4">
+                  {[1,2,3,4,5].map(star => (
+                    <span key={star} className="material-symbols-outlined text-3xl text-surface-variant hover:text-secondary cursor-pointer transition-colors" style={{fontVariationSettings:"'FILL' 1"}}>star</span>
+                  ))}
+                </div>
+                <button className="btn btn-secondary w-full text-sm">Leave a Review</button>
               </div>
             )}
 
             {(booking.status === 'pending' || booking.status === 'active') && (
-              <button 
-                onClick={() => updateBookingStatus(booking.id, 'cancelled')}
+              <button
+                onClick={() => setBooking(prev => ({...prev, status: 'cancelled'}))}
                 className="w-full btn btn-secondary text-sm py-3.5 border-error/20 text-error hover:bg-error/10"
               >
                 Cancel Booking

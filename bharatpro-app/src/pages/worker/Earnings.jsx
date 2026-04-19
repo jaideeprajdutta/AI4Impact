@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import WorkerLayout from '../../components/worker/WorkerLayout';
-import { useApp } from '../../context/AppContext';
+import { getWorkerJobs } from '../../api';
 
+const WORKER_ID = 1;
 const periods = ['Today', 'This Week', 'This Month', 'All Time'];
 
 const weekData = [
@@ -15,27 +16,32 @@ const weekData = [
 ];
 
 export default function Earnings() {
-  const { bookings, getWorkerMetrics, currentWorkerId } = useApp();
   const [period, setPeriod] = useState('This Week');
   const [withdrawn, setWithdrawn] = useState(false);
+  const [jobs, setJobs] = useState([]);
   const maxVal = Math.max(...weekData.map(d => d.value));
 
-  const metrics = getWorkerMetrics(currentWorkerId);
-  
-  // Real transactions from bookings
-  const myBookings = bookings.filter(b => b.workerId === currentWorkerId && (b.status === 'completed' || b.status === 'active'));
-  
-  // Fake some transactions based on bookings
-  const transactions = myBookings.map(b => ({
-    id: b.id,
-    title: b.title,
-    client: b.clientName,
-    amount: b.status === 'completed' ? `+₹${b.amount}` : `+₹${b.amount} (Est)`,
-    date: b.date || 'Today',
-    status: b.status
-  }));
+  useEffect(() => {
+    getWorkerJobs(WORKER_ID)
+      .then(data => setJobs(data.jobs || []))
+      .catch(console.error);
+  }, []);
 
-  const pendingPayout = myBookings.filter(b => b.status === 'active').reduce((sum, b) => sum + b.amount, 0);
+  const completedJobs = jobs.filter(j => j.status === 'completed');
+  const activeJobs = jobs.filter(j => j.status === 'assigned');
+  const totalEarnings = completedJobs.reduce((sum, j) => sum + (j.price || 0), 0);
+  const pendingPayout = activeJobs.reduce((sum, j) => sum + (j.price || 0), 0);
+
+  const transactions = jobs
+    .filter(j => j.status === 'completed' || j.status === 'assigned')
+    .map(j => ({
+      id: j.id,
+      title: j.required_skill || 'Service',
+      client: j.location || 'Client',
+      amount: j.status === 'completed' ? `+₹${j.price}` : `+₹${j.price} (Est)`,
+      date: 'Recent',
+      status: j.status,
+    }));
 
   return (
     <WorkerLayout>
@@ -59,7 +65,7 @@ export default function Earnings() {
               <span className="material-symbols-outlined text-4xl">account_balance_wallet</span>
             </div>
             <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Total Earned</p>
-            <p className="text-3xl font-headline font-bold text-on-surface">₹{metrics.totalEarnings.toLocaleString()}</p>
+            <p className="text-3xl font-headline font-bold text-on-surface">₹{totalEarnings.toLocaleString()}</p>
             <div className="mt-3 flex items-center gap-1.5">
               <span className="badge badge-success text-xs">
                 <span className="material-symbols-outlined text-xs">trending_up</span> +12%
@@ -69,7 +75,7 @@ export default function Earnings() {
           </div>
           <div className="card p-5">
             <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Completed Jobs</p>
-            <p className="text-3xl font-headline font-bold text-on-surface">{metrics.completedJobs}</p>
+            <p className="text-3xl font-headline font-bold text-on-surface">{completedJobs.length}</p>
             <p className="text-xs text-on-surface-variant mt-3">All time</p>
           </div>
           <div className="card p-5 border-secondary/20 bg-secondary/5">
@@ -122,7 +128,7 @@ export default function Earnings() {
                   </div>
                   <div className="text-right shrink-0 ml-4">
                     <p className={`text-sm font-headline font-bold ${tx.status === 'fee' ? 'text-error' : 'text-tertiary'}`}>{tx.amount}</p>
-                    {tx.status === 'active' && <p className="text-xs text-secondary">Pending</p>}
+                    {tx.status === 'assigned' && <p className="text-xs text-secondary">Pending</p>}
                   </div>
                 </div>
               ))}
@@ -136,7 +142,7 @@ export default function Earnings() {
             <p className="text-sm font-semibold text-on-surface">Ready to withdraw?</p>
             <p className="text-xs text-on-surface-variant mt-0.5">Instant transfer to your bank account.</p>
           </div>
-          <button 
+          <button
             className="btn btn-primary"
             onClick={() => setWithdrawn(true)}
             disabled={withdrawn || pendingPayout === 0}

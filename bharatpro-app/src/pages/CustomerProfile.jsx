@@ -1,12 +1,11 @@
-import { useApp } from '../context/AppContext';
+import { useState } from 'react';
 import Layout from '../components/Layout';
 import { Link } from 'react-router-dom';
 
-export default function CustomerProfile() {
-  const { bookings, currentUser, savedWorkers, workers, isDarkMode, setIsDarkMode } = useApp();
+const currentUser = { id: 999, name: 'You', role: 'customer' };
 
-  const myBookings = bookings.filter(b => b.clientName === currentUser.name || b.clientName === 'You');
-  const mySavedWorkers = workers.filter(w => savedWorkers.includes(w.id));
+export default function CustomerProfile() {
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -22,7 +21,7 @@ export default function CustomerProfile() {
     <Layout>
       <div className="pt-28 md:pt-32 pb-32 animate-fade-in">
         <div className="max-w-4xl mx-auto space-y-8">
-          
+
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
@@ -35,17 +34,17 @@ export default function CustomerProfile() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
+
             {/* Sidebar / Preferences */}
             <div className="space-y-6">
               <div className="card p-6">
                 <h2 className="text-lg font-headline font-bold mb-4">Preferences</h2>
-                
+
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-sm font-medium text-on-surface-variant flex items-center gap-2">
                     <span className="material-symbols-outlined text-[20px]">dark_mode</span> Theme
                   </span>
-                  <button 
+                  <button
                     onClick={() => setIsDarkMode(!isDarkMode)}
                     className={`w-12 h-6 rounded-full transition-colors relative ${isDarkMode ? 'bg-secondary' : 'bg-white/10'}`}
                   >
@@ -66,74 +65,19 @@ export default function CustomerProfile() {
 
               <div className="card p-6">
                 <h2 className="text-lg font-headline font-bold mb-4">Saved Pros</h2>
-                {mySavedWorkers.length === 0 ? (
-                  <p className="text-sm text-on-surface-variant">No saved professionals yet.</p>
-                ) : (
-                  <div className="space-y-4">
-                    {mySavedWorkers.map(w => (
-                      <Link to="/search" key={w.id} className="flex items-center gap-3 group">
-                        {w.image ? (
-                          <img src={w.image} alt={w.name} className="w-10 h-10 rounded-full object-cover" />
-                        ) : (
-                          <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center">
-                            <span className="material-symbols-outlined text-sm">person</span>
-                          </div>
-                        )}
-                        <div>
-                          <p className="text-sm font-bold text-on-surface group-hover:text-secondary transition-colors">{w.name}</p>
-                          <p className="text-[10px] text-on-surface-variant">{w.role}</p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                )}
+                <p className="text-sm text-on-surface-variant">No saved professionals yet.</p>
               </div>
             </div>
 
             {/* Main Content / Bookings */}
             <div className="md:col-span-2 space-y-6">
               <h2 className="text-xl font-headline font-bold text-on-surface">My Bookings</h2>
-              
-              {myBookings.length === 0 ? (
-                <div className="card p-12 text-center flex flex-col items-center">
-                  <span className="material-symbols-outlined text-4xl text-on-surface-variant mb-4">history</span>
-                  <p className="text-on-surface-variant mb-6">You don't have any bookings yet.</p>
-                  <Link to="/search" className="btn btn-primary">Find a Professional</Link>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {myBookings.map(booking => (
-                    <div key={booking.id} className="card p-6 hover:border-secondary/30 transition-colors">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h3 className="text-lg font-bold text-on-surface mb-1">{booking.title}</h3>
-                          <p className="text-sm text-on-surface-variant flex items-center gap-1.5">
-                            <span className="material-symbols-outlined text-[16px]">person</span> {booking.workerName}
-                          </p>
-                        </div>
-                        {getStatusBadge(booking.status)}
-                      </div>
-                      
-                      <div className="flex justify-between items-end pt-4 border-t border-white/05">
-                        <div>
-                          <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Date</p>
-                          <p className="text-sm font-medium">{booking.slot?.date || 'N/A'}, {booking.slot?.time || 'N/A'}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Amount</p>
-                          <p className="text-lg font-headline font-bold text-secondary">₹{booking.amount}</p>
-                        </div>
-                      </div>
 
-                      {booking.status !== 'completed' && booking.status !== 'cancelled' && (
-                        <div className="mt-4 pt-4 border-t border-white/05 flex gap-3">
-                          <Link to={`/order-tracking/${booking.id}`} className="btn btn-secondary flex-1 py-2 text-sm">Track Order</Link>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="card p-12 text-center flex flex-col items-center">
+                <span className="material-symbols-outlined text-4xl text-on-surface-variant mb-4">history</span>
+                <p className="text-on-surface-variant mb-6">You don't have any bookings yet.</p>
+                <Link to="/search" className="btn btn-primary">Find a Professional</Link>
+              </div>
             </div>
 
           </div>

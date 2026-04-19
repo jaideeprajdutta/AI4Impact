@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { useApp } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
+import { createJob } from '../api';
 
 export default function BookingModal({ worker, onClose }) {
-  const { addBooking } = useApp();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [taskDetails, setTaskDetails] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const slots = [
     { id: 1, time: '10:00 AM', date: 'Today' },
@@ -17,24 +17,43 @@ export default function BookingModal({ worker, onClose }) {
     { id: 5, time: '11:30 AM', date: 'Tomorrow' },
   ];
 
-  const handleConfirm = () => {
-    const booking = addBooking({
-      workerId: worker.id,
-      workerName: worker.name,
-      title: 'Plumbing Service',
-      slot: selectedSlot,
-      description: taskDetails,
-      status: 'pending',
-      amount: worker.rate ? parseInt(worker.rate.replace(/\D/g, '')) : 450,
-      clientName: 'You',
-    });
-    navigate(`/order-tracking/${booking.id}`);
+  const handleConfirm = async () => {
+    setLoading(true);
+    try {
+      const data = await createJob({
+        description: taskDetails || `Service requested: ${worker.role || 'General Service'}`,
+        required_skill: worker.role || 'General',
+        location: worker.location || 'Mumbai',
+        price: worker.price || 500,
+        target_worker_id: worker.id || null,
+      });
+      const jobId = data.job_id || data.id || 'NEW';
+      // ✅ Pass worker info so OrderTracking can display name + ID
+      navigate(`/order-tracking/${jobId}`, {
+        state: {
+          workerName: worker.name,
+          workerId: worker.id,
+          workerRole: worker.role,
+          workerLocation: worker.location,
+          slot: selectedSlot,
+          price: worker.price,
+        }
+      });
+    } catch (e) {
+      console.error('Failed to create job', e);
+      navigate('/order-tracking/NEW');
+    } finally {
+      setLoading(false);
+      onClose();
+    }
   };
+
+
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-surface/80 backdrop-blur-md" onClick={onClose} />
-      
+
       <div className="relative w-full max-w-lg glass-panel p-6 md:p-8 rounded-3xl shadow-premium animate-reveal">
         <button onClick={onClose} className="absolute top-6 right-6 p-2 rounded-xl hover:bg-white/10 text-on-surface-variant transition-colors">
           <span className="material-symbols-outlined">close</span>
@@ -51,8 +70,8 @@ export default function BookingModal({ worker, onClose }) {
                   key={slot.id}
                   onClick={() => setSelectedSlot(slot)}
                   className={`p-4 rounded-2xl border text-left transition-all ${
-                    selectedSlot?.id === slot.id 
-                      ? 'border-secondary bg-secondary/10' 
+                    selectedSlot?.id === slot.id
+                      ? 'border-secondary bg-secondary/10'
                       : 'border-white/10 bg-white/[0.03] hover:border-white/20'
                   }`}
                 >
@@ -62,7 +81,7 @@ export default function BookingModal({ worker, onClose }) {
               ))}
             </div>
 
-            <button 
+            <button
               disabled={!selectedSlot}
               onClick={() => setStep(2)}
               className="btn btn-primary w-full py-4 disabled:opacity-50"
@@ -80,7 +99,7 @@ export default function BookingModal({ worker, onClose }) {
             <div className="space-y-4 mb-8">
               <div>
                 <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1.5 block">Describe your task</label>
-                <textarea 
+                <textarea
                   value={taskDetails}
                   onChange={(e) => setTaskDetails(e.target.value)}
                   placeholder="e.g. My kitchen sink is leaking and I need the pipe replaced..."
@@ -102,7 +121,9 @@ export default function BookingModal({ worker, onClose }) {
 
             <div className="flex gap-3">
               <button onClick={() => setStep(1)} className="btn btn-secondary flex-1">Back</button>
-              <button onClick={handleConfirm} className="btn btn-primary flex-[2] py-4">Confirm Booking</button>
+              <button onClick={handleConfirm} disabled={loading} className="btn btn-primary flex-[2] py-4 disabled:opacity-60">
+                {loading ? 'Booking...' : 'Confirm Booking'}
+              </button>
             </div>
           </div>
         )}

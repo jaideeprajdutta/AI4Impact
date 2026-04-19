@@ -79,6 +79,7 @@ def search(query):
         score = (0.85 * similarity) + (0.15 * (rating / 5))
 
         results.append({
+            "id": w["id"],
             "name": w["name"],
             "skill": w["skill"],
             "location": w["location"],

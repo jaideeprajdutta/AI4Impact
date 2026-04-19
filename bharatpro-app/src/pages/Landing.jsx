@@ -6,9 +6,12 @@ export default function Landing() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
+  // ✅ FIXED FUNCTION ONLY
   const handleSearch = (e) => {
     if (e) e.preventDefault();
-    navigate('/search');
+    if (!searchQuery.trim()) return;
+
+    navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
   };
 
   return (
@@ -48,7 +51,7 @@ export default function Landing() {
 
               {/* ===== MAIN SEARCH BAR ===== */}
               <div className="max-w-4xl mx-auto mb-16 animate-slide-up delay-300">
-                <form 
+                <form
                   onSubmit={handleSearch}
                   className="group relative h-[72px] rounded-[2rem] glass-panel shadow-premium flex items-center px-4 md:px-8 transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_40px_100px_rgba(0,0,0,0.5)]"
                 >
@@ -66,7 +69,7 @@ export default function Landing() {
 
                   <div className="w-px h-10 bg-white/10 mx-4 hidden md:block" />
 
-                  <button 
+                  <button
                     type="button"
                     onClick={() => navigate('/voice')}
                     className="h-12 w-12 rounded-2xl bg-secondary/10 text-secondary border border-secondary/20 flex items-center justify-center hover:bg-secondary hover:text-white hover:shadow-glow hover:scale-105 active:scale-95 transition-all duration-300 shadow-premium"
@@ -82,9 +85,10 @@ export default function Landing() {
                 <div className="flex flex-wrap justify-center gap-4 mt-6">
                   <span className="text-xs font-bold text-on-surface-variant/40 uppercase tracking-widest">Popular:</span>
                   {['AC Repair', 'Cleaning', 'Plumbing', 'Painting'].map(tag => (
-                    <button 
-                      key={tag} 
-                      onClick={() => navigate('/search')}
+                    <button
+                      key={tag}
+                      // ✅ FIXED HERE ALSO
+                      onClick={() => navigate(`/search?q=${encodeURIComponent(tag)}`)}
                       className="text-xs font-bold text-on-surface-variant hover:text-secondary transition-colors uppercase tracking-widest"
                     >
                       {tag}
