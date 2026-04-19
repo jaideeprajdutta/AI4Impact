@@ -25,7 +25,6 @@ def load_data():
     with open(DATA_PATH, "r") as f:
         return json.load(f)
 
-
 # -------------------------
 # BUILD INDEX (COSINE)
 # -------------------------
