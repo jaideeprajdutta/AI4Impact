@@ -16,8 +16,7 @@ DATA_PATH = os.path.join("data", "_large_workers_dataset.json")
 # LOAD MODEL
 # -------------------------
 
-model = SentenceTransformer('all-MiniLM-L6-v2')
-
+model = SentenceTransformer('paraphrase-MiniLM-L3-v2')
 
 # -------------------------
 # LOAD DATA
