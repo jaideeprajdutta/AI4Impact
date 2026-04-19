@@ -12,8 +12,7 @@ from sklearn.neighbors import NearestNeighbors
 
 DATA_PATH = os.path.join("data", "_large_workers_dataset.json")
 
-# -------------------------
-# LOAD MODEL
+# ------------------------- # LOAD MODEL
 # -------------------------
 
 model = SentenceTransformer('paraphrase-MiniLM-L3-v2')
